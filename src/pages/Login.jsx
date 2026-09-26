@@ -153,6 +153,28 @@ const Login = () => {
                 </div>
               </div>
 
+              {/* Test Mode OTP Notice Banner */}
+              {generatedOtp && (
+                <div className="p-3.5 bg-[#0071e3]/10 border border-[#0071e3]/20 rounded-2xl flex items-center justify-between text-xs text-[#0071e3]">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 shrink-0 text-[#0071e3]" />
+                    <span>
+                      <span className="font-semibold">Test OTP:</span>{' '}
+                      <span className="font-mono font-bold tracking-widest text-base text-[#1d1d1f] bg-white px-2.5 py-0.5 rounded-lg border border-[#0071e3]/20 ml-1">
+                        {generatedOtp}
+                      </span>
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setOtpInput(generatedOtp)}
+                    className="text-[11px] font-semibold text-[#0071e3] bg-white hover:bg-[#0071e3] hover:text-white px-2.5 py-1 rounded-lg border border-[#0071e3]/20 transition-all active:scale-95"
+                  >
+                    Auto-fill
+                  </button>
+                </div>
+              )}
+
               <div>
                 <label className="block mb-1.5 text-xs font-medium text-[#1d1d1f] text-center">Enter 6-Digit Code</label>
                 <input
@@ -166,7 +188,7 @@ const Login = () => {
                   maxLength={6}
                 />
                 <p className="mt-2 text-[11px] text-[#86868b] text-center">
-                  Verification OTP outputted in browser console (demo mode).
+                  Use the test OTP shown above to verify and sign in.
                 </p>
               </div>
 
