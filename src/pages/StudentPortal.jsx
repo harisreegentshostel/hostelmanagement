@@ -90,7 +90,7 @@ const StudentPortal = () => {
         fetchExistingRequest(selectedStudent.id);
         fetchMonthlyRequests(selectedStudent.id, selectedMonth);
       } else if (activeTab === 'fees') {
-        fetchPayments(selectedStudent.id);
+        fetchPayments(selectedStudent);
       } else if (activeTab === 'activity') {
         fetchMonthlyRequests(selectedStudent.id, selectedMonth);
       }
@@ -148,19 +148,40 @@ const StudentPortal = () => {
     }
   };
 
-  const fetchPayments = async (studentId) => {
+  const fetchPayments = async (student) => {
+    if (!student?.id) return;
     setFeesLoading(true);
-    const { data, error } = await supabase
-      .from('payments')
-      .select('*')
-      .eq('student_id', studentId)
-      .order('payment_date', { ascending: false })
-      .order('created_at', { ascending: false });
+    
+    try {
+      // 1. Attempt secure RPC call (validates student id + email)
+      const { data: rpcData, error: rpcError } = await supabase
+        .rpc('get_student_payments', {
+          p_student_id: student.id,
+          p_email: student.email || ''
+        });
 
-    if (!error && data) {
-      setPayments(data);
+      if (!rpcError && rpcData) {
+        setPayments(rpcData);
+      } else {
+        // 2. Direct query fallback
+        const { data, error } = await supabase
+          .from('payments')
+          .select('*')
+          .eq('student_id', student.id)
+          .order('payment_date', { ascending: false })
+          .order('created_at', { ascending: false });
+
+        if (!error && data) {
+          setPayments(data);
+        } else if (error) {
+          console.error('Error fetching payments:', error);
+        }
+      }
+    } catch (err) {
+      console.error('Fetch payments error:', err);
+    } finally {
+      setFeesLoading(false);
     }
-    setFeesLoading(false);
   };
 
   const handleSubmitRequest = async (e) => {
